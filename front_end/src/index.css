@@ -1,0 +1,33 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*,
+:before,
+:after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  min-height: 100vh;
+}
+
+@media only screen and (width <= 61.25em) {
+  html {
+    font-size: 50%;
+  }
+}
+
+body {
+  color: #615551;
+  background-image: linear-gradient(to bottom right, #fbdb89, #f48982);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: calc(100vh - 2 * 4vw);
+  font-family: Nunito Sans, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
