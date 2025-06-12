@@ -1,31 +1,15 @@
-import express, {
-  type NextFunction,
-  type Request,
-  type Response,
-} from 'express';
-import { InternalServerError, type CustomError } from './utils/errors.ts';
-import { getAllRecipes } from './controllers/recipeController.ts';
+import express from 'express';
+import cors from 'cors';
+import recipeRouter from './routes/recipeRoutes.ts';
+import errorHandler from './utils/errorHandler.ts';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
-app.get('/', getAllRecipes);
+app.use('/api/v1/recipes', recipeRouter);
 
-const errorMiddleware = function (
-  err: CustomError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  res.status(err.statusCode).json({
-    status: 'error',
-    error: err.name,
-    message: err.message,
-    stack: err.stack,
-  });
-};
-
-app.use(errorMiddleware);
+app.use(errorHandler);
 
 export default app;

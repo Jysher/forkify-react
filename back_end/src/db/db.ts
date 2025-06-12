@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { connect } from 'mongoose';
 import { InternalServerError } from '../utils/errors.ts';
-import { tryCatch, type Result } from '../utils/tryCatch.ts';
+import { tryCatch } from '../utils/tryCatch.ts';
 
 type Connection = typeof import('mongoose');
 

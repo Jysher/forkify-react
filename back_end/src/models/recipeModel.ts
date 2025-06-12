@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 type Ingredient = {
   quantity: number | null;
@@ -16,7 +16,7 @@ interface IRecipe {
   ingredients: Ingredient[];
 }
 
-export const recipeSchema = new Schema<IRecipe>({
+const recipeSchema = new Schema<IRecipe>({
   title: {
     type: String,
     required: [true, 'Title is required.'],
@@ -48,3 +48,5 @@ export const recipeSchema = new Schema<IRecipe>({
     required: [true, 'Ingredients is required'],
   },
 });
+
+export default model('Recipe', recipeSchema);
