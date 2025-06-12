@@ -1,0 +1,63 @@
+.btn--inline {
+  color: #f38e82;
+  cursor: pointer;
+  background-color: #f9f5f3;
+  border: none;
+  border-radius: 10rem;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+}
+
+.btn--inline svg {
+  fill: currentColor;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0 0.2rem;
+}
+
+.btn--inline span {
+  margin: 0 0.4rem;
+}
+
+.btn--inline:hover {
+  color: #f48982;
+  background-color: #f2efee;
+}
+
+.btn--inline:focus {
+  outline: none;
+}
+
+.search-results {
+  flex-direction: column;
+  padding: 3rem 0;
+  display: flex;
+}
+
+.results {
+  margin-bottom: 2rem;
+  list-style: none;
+}
+
+.pagination {
+  margin-top: auto;
+  padding: 0 3.5rem;
+}
+
+.pagination:after {
+  content: '';
+  clear: both;
+  display: table;
+}
+
+.pagination__btn--prev {
+  float: left;
+}
+
+.pagination__btn--next {
+  float: right;
+}
