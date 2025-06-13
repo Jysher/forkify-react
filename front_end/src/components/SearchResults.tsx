@@ -1,47 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import icons from '/icons.svg';
 import './SearchResults.css';
 import { type IRecipe } from '../types/types';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import Pagination from './Pagination';
 
 type SearchResultsProps = {
-  query: string;
-  onError: (error: string | null) => void;
-  onGetRecipe: (recipe: IRecipe | null) => void;
+  recipes: IRecipe[];
+  getRecipeHandler: (recipe: IRecipe) => void;
 };
 
-function SearchResults({ query, onError, onGetRecipe }: SearchResultsProps) {
-  const [recipes, setRecipes] = useState<IRecipe[]>([]);
+const RESULTS_PER_PAGE = 11;
 
-  useEffect(() => {
-    const fetchRecipes = async (query: string) => {
-      const res = await fetch(`${API_URL}/recipes?search=${query}`);
-      if (!res.ok) {
-        return;
-      }
-      const data = await res.json();
-      setRecipes(data.data);
-      if (data.data.length === 0) {
-        onError(`No recipes found for "${query}". Please try again!`);
-      }
-    };
+function SearchResults({ recipes, getRecipeHandler }: SearchResultsProps) {
+  const [page, setPage] = useState(1);
 
-    fetchRecipes(query);
-  }, [query, onError]);
+  const start = (page - 1) * RESULTS_PER_PAGE;
+  const end = page * RESULTS_PER_PAGE;
+  const recipesToDisplay = recipes.slice(start, end);
+  const totalPages = Math.ceil(recipes.length / RESULTS_PER_PAGE);
 
-  if (recipes.length === 0) {
-    return <div className="search-results"></div>;
-  }
+  const nextPage = () => {
+    setPage(prevPage => prevPage + 1);
+  };
 
-  return (
-    <div className="search-results">
+  const prevPage = () => {
+    setPage(prevPage => prevPage - 1);
+  };
+
+  return recipesToDisplay.length > 0 ? (
+    <>
       <ul className="results">
-        {recipes.map((recipe: IRecipe) => (
+        {recipesToDisplay.map((recipe: IRecipe) => (
           <li
             className="preview"
             key={recipe._id}
-            onClick={() => onGetRecipe(recipe)}
+            onClick={() => getRecipeHandler(recipe)}
           >
             <a
               className="preview__link preview__link--active"
@@ -64,22 +57,14 @@ function SearchResults({ query, onError, onGetRecipe }: SearchResultsProps) {
         ))}
       </ul>
 
-      {/* <div className="pagination">
-        <button className="btn--inline pagination__btn--prev">
-          <svg className="search__icon">
-            <use href={`${icons}#icon-arrow-left`}></use>
-          </svg>
-          <span>Page 1</span>
-        </button>
-        <button className="btn--inline pagination__btn--next">
-          <span>Page 3</span>
-          <svg className="search__icon">
-            <use href={`${icons}#icon-arrow-right`}></use>
-          </svg>
-        </button>
-      </div> */}
-    </div>
-  );
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        prevPage={prevPage}
+        nextPage={nextPage}
+      />
+    </>
+  ) : null;
 }
 
 export default SearchResults;

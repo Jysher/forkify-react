@@ -3,16 +3,16 @@ import icons from '/icons.svg';
 import './SearchBar.css';
 
 type SearchBarProps = {
-  searchQueryHandler: (query: string) => void;
+  searchHandler: (query: string) => void;
 };
 
-function SearchBar({ searchQueryHandler }: SearchBarProps) {
+function SearchBar({ searchHandler }: SearchBarProps) {
   const [query, setQuery] = useState('');
 
   const search = (e: FormEvent) => {
     e.preventDefault();
     setQuery('');
-    searchQueryHandler(query);
+    searchHandler(query);
   };
 
   return (

@@ -47,28 +47,6 @@
   color: #918581;
 }
 
-.spinner {
-  text-align: center;
-  margin: 5rem auto;
-}
-
-.spinner svg {
-  fill: #f38e82;
-  width: 6rem;
-  height: 6rem;
-  animation: 2s linear infinite rotate;
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 .header {
   background-color: #f9f5f3;
   grid-area: head;
@@ -81,6 +59,15 @@
   height: 4.6rem;
   margin-left: 4rem;
   display: block;
+}
+
+.recipe {
+  background-color: #f9f5f3;
+}
+
+.search-results {
+  flex-direction: column;
+  display: flex;
 }
 
 .copyright {

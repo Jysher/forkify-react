@@ -1,46 +1,25 @@
-import { Suspense } from 'react';
 import icons from '/icons.svg';
 import './Recipe.css';
 import { type IRecipe } from '../types/types';
 
 type RecipeProps = {
   recipe: IRecipe | null;
-  error: string | null;
 };
 
-function Recipe({ recipe, error }: RecipeProps) {
+function Recipe({ recipe }: RecipeProps) {
   return (
-    <div className="recipe">
+    <>
       {!recipe ? (
-        error ? (
-          <div className="error">
-            <div>
-              <svg>
-                <use href={`${icons}#icon-alert-triangle`}></use>
-              </svg>
-            </div>
-            <p>{error}</p>
+        <div className="message">
+          <div>
+            <svg>
+              <use href="src/img/icons.svg#icon-smile"></use>
+            </svg>
           </div>
-        ) : (
-          <div className="message">
-            <div>
-              <svg>
-                <use href={`${icons}#icon-smile`}></use>
-              </svg>
-            </div>
-            <p>Start by searching for a recipe or an ingredient. Have fun!</p>
-          </div>
-        )
+          <p>Start by searching for a recipe or an ingredient. Have fun!</p>
+        </div>
       ) : (
-        <Suspense
-          fallback={
-            <div className="spinner">
-              <svg>
-                <use href={`${icons}#icon-loader`}></use>
-              </svg>
-            </div>
-          }
-        >
+        <>
           <figure className="recipe__fig">
             <img
               src={recipe.image_url}
@@ -133,9 +112,9 @@ function Recipe({ recipe, error }: RecipeProps) {
               </svg>
             </a>
           </div>
-        </Suspense>
+        </>
       )}
-    </div>
+    </>
   );
 }
 
