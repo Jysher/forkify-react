@@ -38,7 +38,7 @@ function SearchResults({ recipes, getRecipeHandler }: SearchResultsProps) {
           >
             <a
               className="preview__link preview__link--active"
-              href={`#${recipe._id}`}
+              href={`#${recipe.title}`}
             >
               <figure className="preview__fig">
                 <img src={recipe.image_url} alt={recipe.title} />

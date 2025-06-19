@@ -1,7 +1,7 @@
 import { type NextFunction, type Request, type Response } from 'express';
 import { type CustomError } from './errors.ts';
 
-export default function errorHanlder(
+export default function errorHandler(
   err: CustomError,
   req: Request,
   res: Response,
@@ -9,9 +9,7 @@ export default function errorHanlder(
 ) {
   res.status(err.statusCode).json({
     status: 'error',
-    error: err.name,
-    message: err.message,
-    stack: err.stack,
+    message: 'Something went wrong. Please try again later.',
   });
   next();
 }

@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from 'express';
-import { connectDB } from '../db/db.ts';
 import Recipe from '../models/recipeModel.ts';
 import { tryCatch } from '../utils/tryCatch.ts';
 import { InternalServerError, NotFoundError } from '../utils/errors.ts';
@@ -14,37 +13,19 @@ export const getAllRecipes = async (
     return;
   }
 
-  // Connect to the database
-  const { data: db, error: connectError } = await tryCatch(connectDB());
-
-  if (connectError) {
-    console.log(connectError);
-    next(connectError);
-    return;
-  }
-
   // Fetch all recipes
-  const { data: results, error: readError } = await tryCatch(Recipe.find());
+  const { data, error } = await tryCatch(Recipe.find());
 
-  if (readError) {
-    console.log(readError);
-    next(new InternalServerError(readError.message));
-    return;
-  }
-
-  // If no recipes found, return a NotFoundError
-  if (results.length <= 0) {
-    next(new NotFoundError('Could not find any recipes...'));
+  if (error) {
+    next(new InternalServerError(error.message));
     return;
   }
 
   res.status(200).json({
     status: 'success',
-    results: results.length,
-    data: results,
+    results: data.length,
+    data: data,
   });
-
-  db.disconnect();
 };
 
 export const getRecipes = async (
@@ -55,33 +36,22 @@ export const getRecipes = async (
   const query = req.query.search;
   if (!query) return;
 
-  // Connect to the database
-  const { data: db, error: connectError } = await tryCatch(connectDB());
-
-  if (connectError) {
-    console.log(connectError);
-    next(connectError);
-    return;
-  }
-
   // Fetch recipes based on the search query
-  const { data: results, error: readError } = await tryCatch(
-    Recipe.find({ title: { $regex: `\\b${query}\\b`, $options: 'i' } })
+  const { data, error } = await tryCatch(
+    Recipe.find({ title: { $regex: query, $options: 'i' } })
   );
 
-  if (readError) {
-    console.log(readError);
-    next(new InternalServerError(readError.message));
+  if (error) {
+    console.log(error.name);
+    next(new InternalServerError(error.message));
     return;
   }
 
   res.status(200).json({
     status: 'success',
-    results: results.length,
-    data: results,
+    results: data.length,
+    data: data,
   });
-
-  db.disconnect();
 };
 
 export const getRecipe = async (
@@ -89,14 +59,21 @@ export const getRecipe = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // Connect to the database
-  const { data: db, error: connectError } = await tryCatch(connectDB());
+  const title = req.params.title;
+  if (!title) return;
 
-  if (connectError) {
-    console.log(connectError);
-    next(connectError);
+  // Fetch recipes based on the search query
+  const { data, error } = await tryCatch(Recipe.find({ title: title }));
+
+  if (error) {
+    console.log(error.name);
+    next(new NotFoundError(error.message));
     return;
   }
 
-  db.disconnect();
+  res.status(200).json({
+    status: 'success',
+    results: data.length,
+    data: data,
+  });
 };

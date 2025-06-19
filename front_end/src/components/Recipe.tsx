@@ -4,19 +4,26 @@ import { type IRecipe } from '../types/types';
 
 type RecipeProps = {
   recipe: IRecipe | null;
+  searchResults: IRecipe[];
 };
 
-function Recipe({ recipe }: RecipeProps) {
+function Recipe({ recipe, searchResults }: RecipeProps) {
   return (
     <>
       {!recipe ? (
         <div className="message">
-          <div>
-            <svg>
-              <use href="src/img/icons.svg#icon-smile"></use>
-            </svg>
-          </div>
-          <p>Start by searching for a recipe or an ingredient. Have fun!</p>
+          {!searchResults || searchResults.length <= 0 ? (
+            <>
+              <div>
+                <svg>
+                  <use href={`${icons}#icon-smile`}></use>
+                </svg>
+              </div>
+              <p>Start by searching for a recipe or an ingredient. Have fun!</p>
+            </>
+          ) : (
+            <p>Found {searchResults.length} recipes!</p>
+          )}
         </div>
       ) : (
         <>
