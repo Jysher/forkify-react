@@ -1,9 +1,15 @@
 import { Router } from 'express';
-import { getRecipe, getRecipes } from '../controllers/recipeController.ts';
+import {
+  createRecipe,
+  deleteRecipe,
+  getRecipe,
+  getRecipes,
+  updateRecipe,
+} from '../controllers/recipeController.ts';
 
 const router = Router();
 
-router.route('/').get(getRecipes);
-router.route('/:title').get(getRecipe);
+router.route('/').get(getRecipes).post(createRecipe);
+router.route('/:id').get(getRecipe).patch(updateRecipe).delete(deleteRecipe);
 
 export default router;

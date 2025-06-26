@@ -1,56 +1,30 @@
 import type { NextFunction, Request, Response } from 'express';
-import Recipe from '../models/recipeModel.ts';
+import Recipe from '../models/Recipe.ts';
 import { tryCatch } from '../utils/tryCatch.ts';
-import { InternalServerError, NotFoundError } from '../utils/errors.ts';
-
-export const getAllRecipes = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  if (req.query.search) {
-    next();
-    return;
-  }
-
-  // Fetch all recipes
-  const { data, error } = await tryCatch(Recipe.find());
-
-  if (error) {
-    next(new InternalServerError(error.message));
-    return;
-  }
-
-  res.status(200).json({
-    status: 'success',
-    results: data.length,
-    data: data,
-  });
-};
+import HttpError from '../utils/HttpError.ts';
 
 export const getRecipes = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const query = req.query.search;
-  if (!query) return;
+  let queryObj = Recipe.find();
 
-  // Fetch recipes based on the search query
-  const { data, error } = await tryCatch(
-    Recipe.find({ title: { $regex: query, $options: 'i' } })
-  );
-
-  if (error) {
-    console.log(error.name);
-    next(new InternalServerError(error.message));
-    return;
+  const searchQuery = req.query.search;
+  if (searchQuery) {
+    queryObj = queryObj.find({ title: { $regex: searchQuery, $options: 'i' } });
+  } else {
+    queryObj = queryObj.find();
   }
+
+  const { data: recipes, error } = await tryCatch(queryObj);
+
+  if (error) return next(error);
 
   res.status(200).json({
     status: 'success',
-    results: data.length,
-    data: data,
+    results: recipes.length,
+    data: recipes,
   });
 };
 
@@ -59,21 +33,85 @@ export const getRecipe = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const title = req.params.title;
-  if (!title) return;
+  const id = req.params.id;
 
   // Fetch recipes based on the search query
-  const { data, error } = await tryCatch(Recipe.find({ title: title }));
+  const { data: recipe, error } = await tryCatch(Recipe.find({ _id: id }));
 
-  if (error) {
-    console.log(error.name);
-    next(new NotFoundError(error.message));
-    return;
-  }
+  if (error) return next(error);
 
   res.status(200).json({
     status: 'success',
-    results: data.length,
-    data: data,
+    data: recipe,
+  });
+};
+
+export const createRecipe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const recipeData = req.body;
+
+  if (!recipeData) return next(new HttpError('No recipe data provided.', 400));
+
+  // Create a new recipe
+  const { data: newRecipe, error } = await tryCatch(Recipe.create(recipeData));
+
+  if (error) return next(error);
+
+  res.status(201).json({
+    status: 'success',
+    data: newRecipe,
+  });
+};
+
+export const updateRecipe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const id = req.params.id;
+  if (!id) return next(new HttpError('No recipe ID provided.', 400));
+
+  const recipeData = req.body;
+  if (!recipeData) return next(new HttpError('No update data provided.', 400));
+
+  // Update the recipe
+  const { data: updatedRecipe, error } = await tryCatch(
+    Recipe.findByIdAndUpdate(id, recipeData, {
+      new: true,
+      runValidators: true,
+    })
+  );
+
+  if (error) return next(error);
+  if (!updatedRecipe) return next(new HttpError('Recipe not found.', 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: updatedRecipe,
+  });
+};
+
+export const deleteRecipe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const id = req.params.id;
+  if (!id) return;
+
+  // Delete the recipe
+  const { data: deletedRecipe, error } = await tryCatch(
+    Recipe.findByIdAndDelete(id)
+  );
+
+  if (error) return next(error);
+  if (!deletedRecipe) return next(new HttpError('Recipe not found.', 404));
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
   });
 };
