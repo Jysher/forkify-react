@@ -1,6 +1,6 @@
 import { type NextFunction, type Request, type Response } from 'express';
 import type { CastError } from 'mongoose';
-import HttpError from './HttpError.ts';
+import HttpError from '../utils/HttpError.ts';
 
 const handleCastErrorDB = (err: CastError): HttpError => {
   return new HttpError(`Invalid ${err.path}: ${err.value}`, 400);
@@ -44,7 +44,7 @@ const parseError = (err: Error): HttpError => {
   return new HttpError('An unexpected error occurred.', 500);
 };
 
-export default function errorMiddleware(
+export default function errorController(
   err: Error,
   req: Request,
   res: Response,

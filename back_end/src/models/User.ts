@@ -2,11 +2,12 @@ import { Schema, model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 
-interface IUser {
+export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  role: string;
   photo?: string;
   passwordChangedAt?: Date;
   isCorrectPassword(plainPass: string, hashPass: string): Promise<boolean>;
@@ -37,6 +38,14 @@ const userSchema = new Schema<IUser>({
     required: [true, 'Please provide a password'],
     minlength: [8, 'Password must be at least 8 characters long'],
     select: false,
+  },
+  role: {
+    type: String,
+    enum: {
+      values: ['admin', 'user'],
+      message: 'Role must be either: admin or user',
+    },
+    default: 'user',
   },
   photo: String,
   passwordChangedAt: {

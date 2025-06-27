@@ -16,6 +16,7 @@ interface IRecipe {
   ingredients: Ingredient[];
   comments?: string[];
 }
+
 const ingredientSchema = new Schema<Ingredient>(
   {
     quantity: {

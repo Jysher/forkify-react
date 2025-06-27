@@ -93,7 +93,15 @@ export const login = async (
   });
 };
 
-export const auth = async (
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  next();
+};
+
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -121,5 +129,16 @@ export const auth = async (
       new HttpError('User recently changed password. Please log in again.', 401)
     );
 
+  req.user = freshUser;
   next();
 };
+
+export const authorized =
+  (...roles: string[]) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) return next(new HttpError('Please log in to continue', 401));
+    if (!roles.includes(req.user.role))
+      return next(new HttpError('Insufficient permissions.', 403));
+
+    next();
+  };

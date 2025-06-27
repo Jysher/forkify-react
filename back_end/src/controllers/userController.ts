@@ -39,3 +39,25 @@ export const getUser = async (
     data: data,
   });
 };
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const id = req.params.id;
+  if (!id) return;
+
+  const { data: deletedUser, error } = await tryCatch(User.findById(id));
+
+  if (error) return next(error);
+
+  if (!deletedUser) {
+    return next(new HttpError('User not found', 404));
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+};
