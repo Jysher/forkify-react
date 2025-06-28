@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
@@ -10,8 +11,11 @@ export interface IUser {
   role: string;
   photo?: string;
   passwordChangedAt?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpiration?: Date;
   isCorrectPassword(plainPass: string, hashPass: string): Promise<boolean>;
   changedPasswordAfter(JWTTimestamp: number | undefined): boolean;
+  createPasswordResetToken(): string;
 }
 
 const userSchema = new Schema<IUser>({
@@ -52,12 +56,27 @@ const userSchema = new Schema<IUser>({
     type: Date,
     default: Date.now(),
   },
+  resetPasswordToken: {
+    type: String,
+    select: false,
+  },
+  resetPasswordExpiration: {
+    type: Date,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next): Promise<void> {
   if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+userSchema.pre('save', function (next): void {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });
 
@@ -79,6 +98,17 @@ userSchema.methods.changedPasswordAfter = function (
   }
 
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function (): string {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.resetPasswordExpiration = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 export default model<IUser>('User', userSchema);
