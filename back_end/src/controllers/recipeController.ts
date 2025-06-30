@@ -36,7 +36,7 @@ export const getRecipe = async (
   const id = req.params.id;
 
   // Fetch recipes based on the search query
-  const { data: recipe, error } = await tryCatch(Recipe.find({ _id: id }));
+  const { data: recipe, error } = await tryCatch(Recipe.findById(id));
 
   if (error) return next(error);
 

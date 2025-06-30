@@ -48,8 +48,8 @@ export const register = async (
 
   const token = signToken(newUser.id, next);
   const noPasswordUser = {
-    firstName: newUser.firstName,
-    lastName: newUser.lastName,
+    first_name: newUser.first_name,
+    last_name: newUser.last_name,
     email: newUser.email,
   };
 
@@ -132,8 +132,8 @@ export const authenticate = async (
   next();
 };
 
-export const authorized =
-  (...roles: string[]) =>
+export const authorize =
+  (roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) return next(new HttpError('Please log in to continue', 401));
     if (!roles.includes(req.user.role))
@@ -176,8 +176,8 @@ export const forgotPassword = async (
   );
 
   if (sendEmailError) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiration = undefined;
+    user.reset_password_token = undefined;
+    user.reset_password_expiration = undefined;
 
     const { error: saveError } = await tryCatch(
       user.save({ validateBeforeSave: false })
@@ -223,8 +223,8 @@ export const resetPassword = async (
   if (!user) return next(new HttpError('Token is invalid or has expired', 400));
 
   user.password = newPassword;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpiration = undefined;
+  user.reset_password_token = undefined;
+  user.reset_password_expiration = undefined;
 
   const { error: saveError } = await tryCatch(user.save());
   if (saveError) return next(saveError);

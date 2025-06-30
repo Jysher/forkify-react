@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   authenticate,
-  authorized,
+  authorize,
   forgotPassword,
   login,
   logout,
@@ -13,6 +13,7 @@ import {
   deleteUser,
   getUser,
   getUsers,
+  updateUser,
 } from '../controllers/userController.ts';
 
 const router = Router();
@@ -23,12 +24,13 @@ router.post('/logout', logout);
 router.post('/forgotPassword', forgotPassword);
 
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updateMyPassword', authenticate, updatePassword);
+router.patch('/updatePassword', authenticate, updatePassword);
+router.patch('/updateUser', authenticate, updateUser);
 
-router.route('/').get(authenticate, authorized('admin'), getUsers);
+router.route('/').get(authenticate, authorize(['admin']), getUsers);
 router
   .route('/:id')
-  .get(authenticate, authorized('admin'), getUser)
-  .delete(authenticate, authorized('admin', 'user'), deleteUser);
+  .get(authenticate, authorize(['admin']), getUser)
+  .delete(authenticate, authorize(['admin']), deleteUser);
 
 export default router;
