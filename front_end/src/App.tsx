@@ -7,6 +7,7 @@ import Recipe from './components/Recipe';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import AddRecipeModal from './components/AddRecipeModal';
+import LoginModal from './components/LoginModal';
 import { useLocationHash } from './utils/useLocationHash';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -17,6 +18,7 @@ function App() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [showAddRecipeModal, setShowAddRecipeModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const urlHash = useLocationHash().slice(1);
 
   useEffect(() => {
@@ -81,6 +83,9 @@ function App() {
             onAddRecipeClick={() => {
               setShowAddRecipeModal(true);
             }}
+            onLoginClick={() => {
+              setShowLoginModal(true);
+            }}
           />
         </header>
         <div className="search-results">
@@ -106,6 +111,8 @@ function App() {
         showModal={showAddRecipeModal}
         hideModal={setShowAddRecipeModal}
       />
+
+      <LoginModal showModal={showLoginModal} hideModal={setShowLoginModal} />
     </>
   );
 }

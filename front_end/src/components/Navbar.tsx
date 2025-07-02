@@ -3,9 +3,10 @@ import './Navbar.css';
 
 type NavbarProps = {
   onAddRecipeClick: () => void;
+  onLoginClick: () => void;
 };
 
-function Navbar({ onAddRecipeClick }: NavbarProps) {
+function Navbar({ onAddRecipeClick, onLoginClick }: NavbarProps) {
   return (
     <nav className="nav">
       <ul className="nav__list">
@@ -20,6 +21,7 @@ function Navbar({ onAddRecipeClick }: NavbarProps) {
             <span>Add recipe</span>
           </button>
         </li>
+
         <li className="nav__item">
           <button className="nav__btn nav__btn--bookmarks">
             <svg className="nav__icon">
@@ -53,6 +55,15 @@ function Navbar({ onAddRecipeClick }: NavbarProps) {
               </li>
             </ul>
           </div>
+        </li>
+
+        <li className="nav__item">
+          <button className="nav__btn nav__btn--login" onClick={onLoginClick}>
+            <svg className="nav__icon">
+              <use href={`${icons}#icon-user`}></use>
+            </svg>
+            <span>Login</span>
+          </button>
         </li>
       </ul>
     </nav>
