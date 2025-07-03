@@ -1,26 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import User from '../models/User.ts';
-import { tryCatch } from '../utils/tryCatch.ts';
 import HttpError from '../utils/HttpError.ts';
-
-type UpdateObject = {
-  first_name: string;
-  last_name: string;
-  email: string;
-};
-
-const filterObj = <T extends Record<string, unknown>>(
-  obj: Record<string, unknown>,
-  allowedFields: string[]
-): T => {
-  const newObj: Record<string, unknown> = {};
-  Object.keys(obj).forEach(key => {
-    if (allowedFields.includes(key)) {
-      newObj[key] = obj[key];
-    }
-  });
-  return newObj as T;
-};
+import tryCatch from '../utils/tryCatch.ts';
+import filterObject from '../utils/filterObject.ts';
+import sanitizeInput from '../utils/sanitizeInput.ts';
 
 export const getUsers = async (
   req: Request,
@@ -66,13 +49,30 @@ export const updateUser = async (
 ): Promise<void> => {
   if (!req.body) return next(new HttpError('No data provided.', 400));
 
-  const allowedFields = ['firstName', 'last_name', 'email'];
-  const filteredObj = filterObj<UpdateObject>(req.body, allowedFields);
+  const allowedFields = ['first_name', 'last_name', 'email'];
+
+  type UpdateUserData = {
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+
+  const targetData: UpdateUserData = {
+    first_name: '',
+    last_name: '',
+    email: '',
+  };
+
+  const sanitizedObj = sanitizeInput<UpdateUserData>(
+    filterObject(req.body, allowedFields),
+    targetData
+  );
 
   if (!req?.user?.id)
     return next(new HttpError('Please log in to continue.', 401));
+
   const { data: updatedUser, error: updateError } = await tryCatch(
-    User.findByIdAndUpdate(req.user.id, filteredObj)
+    User.findByIdAndUpdate(req.user.id, sanitizedObj)
   );
 
   if (updateError) return next(updateError);

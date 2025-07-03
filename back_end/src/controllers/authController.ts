@@ -2,19 +2,31 @@ import type { NextFunction, Request, Response } from 'express';
 import crypto from 'crypto';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import User from '../models/User.ts';
-import { tryCatch } from '../utils/tryCatch.ts';
+import tryCatch from '../utils/tryCatch.ts';
 import HttpError from '../utils/HttpError.ts';
 import sendEmail from '../email/nodemailer.ts';
+import sanitizeInput from '../utils/sanitizeInput.ts';
+import filterObject from '../utils/filterObject.ts';
 
-const signToken = (id: string, next: NextFunction): string | null => {
-  if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
-    next(new HttpError('Environment variables not set.', 500));
-    return null;
-  }
+const signToken = (id: string, next: NextFunction): string | void => {
+  if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN)
+    return next(new HttpError('Environment variables not set.', 500));
 
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
-    expiresIn: Number(process.env.JWT_EXPIRES_IN),
+    expiresIn: Number(process.env.JWT_EXPIRES_IN) * 24 * 60 * 60,
   });
+};
+
+const sendJWTCookie = (token: string | void, res: Response): void => {
+  const cookieOptions: Record<string, unknown> = {
+    expires: new Date(
+      Date.now() + Number(process.env.JWT_EXPIRES_IN) * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
 };
 
 const verifyToken = (token: string): Promise<JwtPayload> => {
@@ -37,9 +49,26 @@ export const register = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const userData = req.body;
+  if (!req.body) return next(new HttpError('No user data provided.', 400));
 
-  if (!userData) return next(new HttpError('No user data provided.', 400));
+  type UserData = {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+  };
+
+  const targetData: UserData = {
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+  };
+
+  const userData = sanitizeInput<UserData>(
+    filterObject(req.body, Object.keys(targetData)),
+    targetData
+  );
 
   // Register a new user
   const { data: newUser, error } = await tryCatch(User.create(userData));
@@ -47,16 +76,12 @@ export const register = async (
   if (error) return next(error);
 
   const token = signToken(newUser.id, next);
-  const noPasswordUser = {
-    first_name: newUser.first_name,
-    last_name: newUser.last_name,
-    email: newUser.email,
-  };
+  sendJWTCookie(token, res);
 
-  res.status(201).json({
+  res.status(200).json({
     status: 'success',
+    message: 'Login successful!',
     token: token,
-    data: noPasswordUser,
   });
 };
 
@@ -67,12 +92,26 @@ export const login = async (
 ): Promise<void> => {
   if (!req.body) return next(new HttpError('No login data provided.', 400));
 
-  const { email, password } = req.body;
+  type LoginData = {
+    email: string;
+    password: string;
+  };
+
+  const targetData: LoginData = {
+    email: '',
+    password: '',
+  };
+
+  const { email, password } = sanitizeInput<LoginData>(
+    filterObject(req.body, Object.keys(targetData)),
+    targetData
+  );
 
   if (!email || !password) {
     return next(new HttpError('Please provide email and password.', 400));
   }
 
+  console.log(typeof email);
   // Find user by email
   const { data: user, error } = await tryCatch(
     User.findOne({ email: email }).select('+password')
@@ -85,9 +124,11 @@ export const login = async (
   }
 
   const token = signToken(user.id, next);
+  sendJWTCookie(token, res);
 
   res.status(200).json({
     status: 'success',
+    message: 'Log in successful!',
     token: token,
   });
 };
@@ -147,11 +188,22 @@ export const forgotPassword = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const email = req?.body?.email;
-  if (!email) return next(new HttpError('No email provided.', 400));
+  if (!req.body) return next(new HttpError('No email provided.', 400));
+
+  type ForgotPasswordData = {
+    email: string;
+  };
+  const targetData: ForgotPasswordData = {
+    email: '',
+  };
+
+  const { email } = sanitizeInput<ForgotPasswordData>(
+    filterObject(req.body, ['email']),
+    targetData
+  );
 
   const { data: user, error: findError } = await tryCatch(
-    User.findOne({ email: req.body.email })
+    User.findOne({ email: email })
   );
   if (findError) return next(findError);
   if (!user) return next(new HttpError('No user found.', 404));
@@ -206,9 +258,21 @@ export const resetPassword = async (
   const token = req.params.token;
   if (!token) return;
 
-  const newPassword = req?.body?.password;
-  if (!newPassword)
+  if (!req.body)
     return next(new HttpError('Please input a new password.', 400));
+
+  type ResetPasswordData = {
+    password: string;
+  };
+
+  const targetData: ResetPasswordData = {
+    password: '',
+  };
+
+  const { password: newPassword } = sanitizeInput<ResetPasswordData>(
+    filterObject(req.body, ['password']),
+    targetData
+  );
 
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -243,13 +307,25 @@ export const updatePassword = async (
   const id = req?.user?.id;
   if (!id) return next(new HttpError('Please log in to continue.', 401));
 
-  const currentPassword = req?.body?.currentPassword;
-  const newPassword = req?.body?.newPassword;
-
-  if (!currentPassword || !newPassword)
+  if (!req.body)
     return next(
       new HttpError('No current password & new password provided.', 400)
     );
+
+  type UpdatePasswordData = {
+    currentPassword: string;
+    newPassword: string;
+  };
+
+  const targetData: UpdatePasswordData = {
+    currentPassword: '',
+    newPassword: '',
+  };
+
+  const { currentPassword, newPassword } = sanitizeInput<UpdatePasswordData>(
+    filterObject(req.body, ['currentPassword', 'newPassword']),
+    targetData
+  );
 
   const { data: user, error: findError } = await tryCatch(
     User.findById(id).select('+password')

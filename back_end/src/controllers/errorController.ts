@@ -56,7 +56,7 @@ export default function errorController(
     console.error(err);
     res.status(error.statusCode).json({
       status: 'error',
-      error: err,
+      error: error,
       message: error.message,
       stack: error.stack,
     });

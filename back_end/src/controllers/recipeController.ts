@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import Recipe from '../models/Recipe.ts';
-import { tryCatch } from '../utils/tryCatch.ts';
+import tryCatch from '../utils/tryCatch.ts';
 import HttpError from '../utils/HttpError.ts';
 
 export const getRecipes = async (

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 
@@ -10,16 +10,20 @@ export interface IUser {
   email: string;
   password: string;
   role: string;
+  active: boolean;
   photo?: string;
   password_changed_at?: Date;
   reset_password_token?: string;
   reset_password_expiration?: Date;
+}
+
+interface IUserMethods {
   isCorrectPassword(plainPass: string, hashPass: string): Promise<boolean>;
   changedPasswordAfter(JWTTimestamp: number | undefined): boolean;
   createPasswordResetToken(): string;
 }
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, Model<IUser>, IUserMethods>(
   {
     first_name: {
       type: String,
@@ -54,16 +58,12 @@ const userSchema = new Schema<IUser>(
       default: 'user',
     },
     photo: String,
-    password_changed_at: {
-      type: Date,
-      default: Date.now(),
-    },
-    reset_password_token: {
-      type: String,
-      select: false,
-    },
-    reset_password_expiration: {
-      type: Date,
+    password_changed_at: Date,
+    reset_password_token: String,
+    reset_password_expiration: Date,
+    active: {
+      type: Boolean,
+      default: true,
       select: false,
     },
   },
@@ -86,6 +86,11 @@ userSchema.pre('save', function (next): void {
   next();
 });
 
+userSchema.pre('find', function (next): void {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 userSchema.methods.isCorrectPassword = async function (
   plainPass: string,
   hashPass: string
@@ -97,8 +102,7 @@ userSchema.methods.changedPasswordAfter = function (
   JWTTimestamp: number | undefined
 ): boolean {
   if (this.password_changed_at && JWTTimestamp) {
-    const changedTimestamp =
-      parseInt(this.password_changed_at.getTime(), 10) / 1000;
+    const changedTimestamp = this.password_changed_at.getTime() / 1000;
 
     return JWTTimestamp < changedTimestamp;
   }
@@ -113,8 +117,8 @@ userSchema.methods.createPasswordResetToken = function (): string {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  this.reset_password_expiration = Date.now() + 10 * 60 * 1000;
+  this.reset_password_expiration = new Date(Date.now() + 10 * 60 * 1000);
   return resetToken;
 };
 
-export default model<IUser>('User', userSchema);
+export default model('User', userSchema);
