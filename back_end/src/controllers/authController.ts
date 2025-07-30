@@ -49,7 +49,13 @@ export const register = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.body) return next(new HttpError('No user data provided.', 400));
+  if (!req.body)
+    return next(
+      new HttpError(
+        'Please provide a valid first_name, last_name, email, and password',
+        400
+      )
+    );
 
   type UserData = {
     first_name: string;
@@ -90,7 +96,10 @@ export const login = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.body) return next(new HttpError('No login data provided.', 400));
+  if (!req.body)
+    return next(
+      new HttpError('Please provide a valid email and password.', 400)
+    );
 
   type LoginData = {
     email: string;
@@ -108,10 +117,11 @@ export const login = async (
   );
 
   if (!email || !password) {
-    return next(new HttpError('Please provide email and password.', 400));
+    return next(
+      new HttpError('Please provide a valid email and password.', 400)
+    );
   }
 
-  console.log(typeof email);
   // Find user by email
   const { data: user, error } = await tryCatch(
     User.findOne({ email: email }).select('+password')
@@ -188,7 +198,8 @@ export const forgotPassword = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.body) return next(new HttpError('No email provided.', 400));
+  if (!req.body)
+    return next(new HttpError('Please provide a valid email.', 400));
 
   type ForgotPasswordData = {
     email: string;
@@ -259,7 +270,7 @@ export const resetPassword = async (
   if (!token) return;
 
   if (!req.body)
-    return next(new HttpError('Please input a new password.', 400));
+    return next(new HttpError('Please input a valid new password.', 400));
 
   type ResetPasswordData = {
     password: string;
@@ -309,7 +320,7 @@ export const updatePassword = async (
 
   if (!req.body)
     return next(
-      new HttpError('No current password & new password provided.', 400)
+      new HttpError('Please provide your current password & new password.', 400)
     );
 
   type UpdatePasswordData = {
