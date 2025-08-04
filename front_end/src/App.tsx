@@ -19,40 +19,44 @@ function App() {
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [showAddRecipeModal, setShowAddRecipeModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const urlHash = useLocationHash().slice(1);
+  const locationHash = useLocationHash().slice(1);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
+    if (!locationHash) {
+      setRecipe(null);
+      setRecipeError(null);
+      setSearchError(null);
+      return;
+    }
     const fetchRecipe = async () => {
-      if (!urlHash) {
-        setRecipe(null);
-        setRecipeError(null);
-        return;
-      }
-
       try {
-        if (!ignore) {
-          const res = await fetch(`${API_URL}/recipes/${urlHash}`);
-          const { data }: { data: IRecipe[] } = await res.json();
-
-          if (data.length <= 0) {
-            setRecipeError(`No recipe found for "${urlHash}".`);
-            return;
-          }
-          setRecipe(data[0]);
-          setRecipeError(null);
+        const res = await fetch(`${API_URL}/recipes/${locationHash}`, {
+          signal: controller.signal,
+        });
+        const { data }: { data: IRecipe } = await res.json();
+        if (!data) {
+          setRecipe(null);
+          setRecipeError('Could not find recipe');
+          setSearchError(null);
+          return;
         }
+        setRecipe(data);
+        setRecipeError(null);
+        setSearchError(null);
       } catch {
-        setSearchError('Could not find recipe');
+        setRecipe(null);
+        setRecipeError('Could not find recipe');
+        setSearchError(null);
       }
     };
 
     fetchRecipe();
 
     return () => {
-      ignore = true;
+      controller.abort();
     };
-  }, [urlHash]);
+  }, [locationHash]);
 
   const searchHandler = async (query: string): Promise<unknown> => {
     try {
