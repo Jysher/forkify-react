@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import icons from '/icons.svg';
 import './SearchResults.css';
-import { type IRecipe } from '../types/types';
-import Pagination from './Pagination';
+import { type IRecipe } from '../../types/types';
+import Pagination from '../Pagination/Pagination';
 
 type SearchResultsProps = {
   recipes: IRecipe[];

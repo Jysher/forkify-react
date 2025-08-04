@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import { type IRecipe } from './types/types';
-import Error from './components/Error';
-import Navbar from './components/Navbar';
-import Recipe from './components/Recipe';
-import SearchBar from './components/SearchBar';
-import SearchResults from './components/SearchResults';
-import AddRecipeModal from './components/AddRecipeModal';
-import LoginModal from './components/LoginModal';
+import Error from './components/Error/Error';
+import Navbar from './components/Navbar/Navbar';
+import Recipe from './components/Recipe/Recipe';
+import SearchBar from './components/SearchBar/SearchBar';
+import SearchResults from './components/SearchResults/SearchResults';
+import AddRecipeModal from './components/AddRecipeModal/AddRecipeModal';
+import LoginModal from './components/LoginModal/LoginModal';
 import { useLocationHash } from './utils/useLocationHash';
 
 const API_URL = import.meta.env.VITE_API_URL;

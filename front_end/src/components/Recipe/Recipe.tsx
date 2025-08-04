@@ -1,6 +1,6 @@
 import icons from '/icons.svg';
 import './Recipe.css';
-import { type IRecipe } from '../types/types';
+import { type IRecipe } from '../../types/types';
 
 type RecipeProps = {
   recipe: IRecipe | null;
