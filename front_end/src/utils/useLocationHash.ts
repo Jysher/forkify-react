@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
-export function useLocationHash() {
+/* export function useLocationHash() {
   const [locationHash, setLocationHash] = useState<string>('');
 
   useEffect(() => {
@@ -20,4 +20,20 @@ export function useLocationHash() {
   }, []);
 
   return locationHash;
+} */
+
+export function useLocationHash() {
+  const locationHash = useSyncExternalStore(subscribe, getSnapshot);
+  return locationHash;
+}
+
+function subscribe(callback: () => void) {
+  window.addEventListener('hashchange', callback);
+  return () => {
+    window.removeEventListener('hashchange', callback);
+  };
+}
+
+function getSnapshot() {
+  return window.location.hash;
 }
