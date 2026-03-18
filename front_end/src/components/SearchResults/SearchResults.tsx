@@ -9,7 +9,7 @@ type SearchResultsProps = {
   getRecipeHandler: (recipe: IRecipe) => void;
 };
 
-const RESULTS_PER_PAGE = 11;
+const RESULTS_PER_PAGE = 13;
 
 function SearchResults({ recipes, getRecipeHandler }: SearchResultsProps) {
   const [page, setPage] = useState(1);

@@ -1,4 +1,3 @@
-import icons from '/icons.svg';
 import './LoginModal.css';
 
 type LoginModalProps = {
@@ -34,12 +33,7 @@ function LoginModal({ showModal, hideModal }: LoginModalProps) {
           </div>
 
           <div className="login-form__btn">
-            <button className="btn login-form__btn">
-              <svg>
-                <use href={`${icons}#icon-upload-cloud`}></use>
-              </svg>
-              <span>Login</span>
-            </button>
+            <button className="btn">Login</button>
           </div>
         </form>
       </div>

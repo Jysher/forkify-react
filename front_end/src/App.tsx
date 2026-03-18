@@ -6,6 +6,7 @@ import Navbar from './components/Navbar/Navbar';
 import Recipe from './components/Recipe/Recipe';
 import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
+import Spinner from './components/Spinner/Spinner';
 import AddRecipeModal from './components/AddRecipeModal/AddRecipeModal';
 import LoginModal from './components/LoginModal/LoginModal';
 import { useLocationHash } from './utils/useLocationHash';
@@ -19,6 +20,7 @@ function App() {
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [showAddRecipeModal, setShowAddRecipeModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
   const locationHash = useLocationHash().slice(1);
 
   useEffect(() => {
@@ -60,8 +62,12 @@ function App() {
 
   const searchHandler = async (query: string): Promise<unknown> => {
     try {
+      setShowSpinner(true);
+
       const res = await fetch(`${API_URL}/recipes?search=${query}`);
       const { data }: { data: IRecipe[] } = await res.json();
+
+      setShowSpinner(false);
 
       if (data.length <= 0) {
         setSearchError(`No recipes found for "${query}".`);
@@ -72,7 +78,7 @@ function App() {
       setSearchResults(data);
     } catch {
       setSearchError(
-        'Could not fetch recipes at the moment. Please try again later.'
+        'Could not fetch recipes at the moment. Please try again later.',
       );
     }
   };
@@ -94,13 +100,31 @@ function App() {
         </header>
         <div className="search-results">
           {!searchError ? (
-            <SearchResults
-              recipes={searchResults}
-              getRecipeHandler={setRecipe}
-            />
+            showSpinner ? (
+              <Spinner />
+            ) : (
+              <SearchResults
+                recipes={searchResults}
+                getRecipeHandler={setRecipe}
+              />
+            )
           ) : (
             <Error message={searchError} />
           )}
+          <div className="copyright">
+            <p>
+              &copy; Copyright by&nbsp;
+              <a
+                className="twitter-link"
+                target="_blank"
+                href="https://twitter.com/jonasschmedtman"
+              >
+                Jonas Schmedtmann
+              </a>
+              . Use for learning or your portfolio. Don't use to teach. Don't
+              claim as your own.
+            </p>
+          </div>
         </div>
         <div className="recipe">
           {!recipeError ? (

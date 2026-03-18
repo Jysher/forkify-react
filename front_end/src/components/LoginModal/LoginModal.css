@@ -78,19 +78,22 @@
 .login-form__column button {
   grid-column: 1 / span 2;
   justify-self: center;
+}
+
+.login-form__column label {
   margin-top: 1rem;
+  margin-bottom: 5px;
 }
 
 .login-form__heading {
   text-transform: uppercase;
   grid-column: 1 / -1;
-  margin-bottom: 1rem;
   font-size: 2.25rem;
   font-weight: 700;
 }
 
 .login-form__btn {
   width: 50%;
+  margin-top: 10px;
   display: flex;
-  justify-self: center;
 }

@@ -20,7 +20,7 @@ function SearchBar({ searchHandler }: SearchBarProps) {
       <input
         type="text"
         className="search__field"
-        placeholder="Search over 1,000,000 recipes..."
+        placeholder="Search for pizza, chicken, or pork..."
         onChange={e => setQuery(e.target.value)}
       />
       <button className="btn search__btn">
