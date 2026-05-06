@@ -14,16 +14,16 @@ const handleDuplicateFieldsDB = (err: unknown): HttpError => {
   const values = Object.values(error.keyValue);
 
   const message = `The field(s): [${keys.join(
-    ', '
+    ', ',
   )}] with value(s): [${values.join(
-    ', '
+    ', ',
   )}] already exists. Please use another value.`;
   return new HttpError(message, 400);
 };
 
 const handleValidationErrorDB = (err: unknown): HttpError => {
   const errors = Object.values((err as { errors: object }).errors).map(
-    el => el.message
+    el => el.message,
   );
   return new HttpError(`Invalid input data. ${errors.join('. ')}`, 400);
 };
@@ -48,7 +48,7 @@ export default function errorController(
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   const error: HttpError = parseError(err);
 
@@ -60,7 +60,7 @@ export default function errorController(
       message: error.message,
       stack: error.stack,
     });
-  } else if (process.env.NODE_ENV === 'production') {
+  } else {
     res.status(500).json({
       status: 'error',
       message: 'Something went wrong. Please try again later.',

@@ -5,7 +5,12 @@ import { connectDB } from './db/db.ts';
 config();
 
 const PORT = process.env.PORT || 3000;
-const DB_URI = process.env.DATABASE_LOCAL;
+const DB_USER = process.env.DATABASE_USERNAME || '';
+const DB_PASSWORD = process.env.DATABASE_PASSWORD || '';
+const DB_URI = process.env.DATABASE_URI?.replace('<db_user>', DB_USER).replace(
+  '<db_password>',
+  DB_PASSWORD,
+);
 
 if (!DB_URI) {
   throw new Error('Database URI undefined.');

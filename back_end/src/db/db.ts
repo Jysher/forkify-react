@@ -4,7 +4,8 @@ export const connectDB = async (uri: string): Promise<void> => {
   try {
     await connect(uri, {
       serverSelectionTimeoutMS: 5000,
-      bufferCommands: false,
+      bufferCommands: true,
+      dbName: 'forkify',
     });
   } catch (error) {
     throw error;
