@@ -1,29 +1,36 @@
-import './LoginModal.css';
+import "./LoginModal.css";
 
 type LoginModalProps = {
   showModal: boolean;
-  hideModal: (bool: boolean) => void;
+  setShowLoginModal: (bool: boolean) => void;
+  setShowRegisterModal: (bool: boolean) => void;
+  login: (formData: FormData) => void;
+  loginError: string | null;
 };
 
-function LoginModal({ showModal, hideModal }: LoginModalProps) {
+function LoginModal({
+  showModal,
+  setShowLoginModal,
+  setShowRegisterModal,
+  login,
+  loginError,
+}: LoginModalProps) {
   return (
     <>
       <div
-        className={`overlay ${showModal ? '' : 'hidden'}`}
+        className={`overlay ${showModal ? "" : "hidden"}`}
         onClick={() => {
-          hideModal(false);
-        }}
-      ></div>
-      <div className={`login-window ${showModal ? '' : 'hidden'}`}>
+          setShowLoginModal(false);
+        }}></div>
+      <div className={`login-window ${showModal ? "" : "hidden"}`}>
         <button
           className="btn--close-modal"
           onClick={() => {
-            hideModal(false);
-          }}
-        >
+            setShowLoginModal(false);
+          }}>
           &times;
         </button>
-        <form className="login-form">
+        <form className="login-form" action={login}>
           <div className="login-form__column">
             <h3 className="login-form__heading">Login</h3>
             <label>Email</label>
@@ -32,10 +39,30 @@ function LoginModal({ showModal, hideModal }: LoginModalProps) {
             <input required name="password" type="password" />
           </div>
 
+          {loginError && (
+            <div className="login-form__error">
+              <p>{loginError}</p>
+            </div>
+          )}
           <div className="login-form__btn">
-            <button className="btn">Login</button>
+            <button type="submit" className="btn">
+              Login
+            </button>
           </div>
         </form>
+        <div className="register-container">
+          <span className="register-text">
+            Don't have an account? Register{" "}
+          </span>
+          <button
+            className="register__btn"
+            onClick={() => {
+              setShowLoginModal(false);
+              setShowRegisterModal(true);
+            }}>
+            here
+          </button>
+        </div>
       </div>
     </>
   );

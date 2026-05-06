@@ -1,4 +1,4 @@
-.login-window {
+.register-window {
   z-index: 1000;
   background-color: #fff;
   border-radius: 9px;
@@ -12,7 +12,7 @@
   box-shadow: 0 4rem 6rem #00000040;
 }
 
-.login-window .btn--close-modal {
+.register-window .btn--close-modal {
   color: inherit;
   cursor: pointer;
   background: none;
@@ -41,23 +41,23 @@
   opacity: 0;
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
 }
 
-.login-form__column {
+.register-form__column {
   display: flex;
   flex-direction: column;
 }
 
-.login-form__column label {
+.register-form__column label {
   color: inherit;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.login-form__column input {
+.register-form__column input {
   border: 1px solid #ddd;
   border-radius: 0.5rem;
   padding: 0.8rem 1rem;
@@ -65,43 +65,37 @@
   transition: all 0.2s;
 }
 
-.login-form__column input::placeholder {
+.register-form__column input::placeholder {
   color: #d3c7c3;
 }
 
-.login-form__column input:focus {
+.register-form__column input:focus {
   background-color: #f9f5f3;
   border: 1px solid #f38e82;
   outline: none;
 }
 
-.login-form__column button {
+.register-form__column button {
   grid-column: 1 / span 2;
   justify-self: center;
 }
 
-.login-form__column label {
+.register-form__column label {
   margin-top: 1rem;
   margin-bottom: 5px;
 }
 
-.login-form__heading {
+.register-form__heading {
   text-transform: uppercase;
   grid-column: 1 / -1;
   font-size: 2.25rem;
   font-weight: 700;
 }
 
-.login-form__btn {
+.register-form__btn {
   width: 50%;
   margin-top: 10px;
   display: flex;
-}
-
-.login-form__error p {
-  margin-top: 10px;
-  font-size: 1.5rem;
-  color: red;
 }
 
 .register-container {
